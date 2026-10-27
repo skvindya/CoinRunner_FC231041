@@ -1,0 +1,47 @@
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+    public float moveSpeed = 6f;
+    public float jumpForce = 12f;
+
+    public Transform groundCheck;     // the small object under the feet[cite: 36]
+    public float groundRadius = 0.2f; // size of the "feeler" circle[cite: 36]
+    public LayerMask groundLayer;     // which layer counts as ground[cite: 36]
+
+    private Rigidbody2D rb;
+    private float moveInput;
+    private bool isGrounded;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    void Update()
+    {
+        moveInput = Input.GetAxisRaw("Horizontal");
+
+        // is there any Ground inside the small circle under our feet?[cite: 36]
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayer);
+
+        // only jump when standing on the ground[cite: 36]
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+    }
+
+    // draws the ground-check circle in the Scene view (editor only)[cite: 37]
+    void OnDrawGizmosSelected()
+    {
+        if (groundCheck == null) return;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(groundCheck.position, groundRadius);
+    }
+}
